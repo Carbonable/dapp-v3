@@ -21,7 +21,7 @@ export default function MenuItem({ title, icon, isExternal = false, isUppercase,
   if (link && isExternal) {
     return (
       <a href={link} target="_blank" className={wrapperClass}>
-        <Image src={`/assets/icons/menu/${icon}-${theme}.svg`} alt="Theme switcher" width={30} height={30} />
+        <Image src={`/assets/icons/menu/${icon}-${theme}.svg`} alt="Theme switcher" width={28} height={28} />
         <div className={textClass}>{title}</div>
         <ArrowTopRightOnSquareIcon className="w-5 h-5 ml-2 text-neutral-800 dark:text-neutral-100" />
       </a>
@@ -32,7 +32,7 @@ export default function MenuItem({ title, icon, isExternal = false, isUppercase,
     return (
       <Link href={link}>
         <div className={wrapperClass}>
-          <Image src={`/assets/icons/menu/${icon}-${theme}.svg`} alt="Theme switcher" width={30} height={30} />
+          <Image src={`/assets/icons/menu/${icon}-${theme}.svg`} alt="Theme switcher" width={28} height={28} />
           <div className={textClass}>{title}</div>
         </div>
       </Link>
@@ -41,7 +41,7 @@ export default function MenuItem({ title, icon, isExternal = false, isUppercase,
 
   return (
     <div className={wrapperClass}>
-      <Image src={`/assets/icons/menu/${icon}-${theme}.svg`} alt="Theme switcher" width={30} height={30} />
+      <Image src={`/assets/icons/menu/${icon}-${theme}.svg`} alt="Theme switcher" width={28} height={28} />
       <div className={textClass}>{title}</div>
       {isExternal && <ArrowTopRightOnSquareIcon className="w-5 h-5 ml-2 text-neutral-800 dark:text-neutral-100" /> }
     </div>

@@ -3,13 +3,14 @@ import MenuItem from "./MenuItem";
 import { Switch } from "@nextui-org/react";
 import { useAccount, useNetwork, useSwitchChain } from "@starknet-react/core";
 import { constants } from "starknet";
-import { sepolia, mainnet } from "@starknet-react/chains";
+import { sepolia } from "@starknet-react/chains";
 import { useEffect, useState } from "react";
 
 
 export default function ChainSwitcher() {
-  const [isSelected, setIsSelected] = useState(true);
-  const [menuTitle, setMenuTitle] = useState("Mainnet");
+  const defaultChain = process.env.NEXT_PUBLIC_DEFAULT_CHAIN;
+  const [isSelected, setIsSelected] = useState(defaultChain === sepolia.network ? false : true);
+  const [menuTitle, setMenuTitle] = useState(defaultChain === sepolia.network ? "Sepolia" : "Mainnet");
   const { chain } = useNetwork();
   const { status } = useAccount();
   const { switchChain } = useSwitchChain({
@@ -22,20 +23,31 @@ export default function ChainSwitcher() {
   });
 
   useEffect(() => {
-    setIsSelected(chain.id === mainnet.id);
-    setMenuTitle(chain.id === mainnet.id ? "Mainnet" : "Sepolia");
-  }, [chain]);
+    switchChain({ chainId: defaultChain === sepolia.network ? constants.StarknetChainId.SN_SEPOLIA : constants.StarknetChainId.SN_MAIN });
+  }, []);
 
+  useEffect(() => {
+    if (status === "connected") {
+      setIsSelected(chain.id === sepolia.id ? false : true);
+      setMenuTitle(chain.id === sepolia.id ? "Sepolia" : "Mainnet");
+      switchChain({ chainId: chain.id === sepolia.id ? constants.StarknetChainId.SN_SEPOLIA : constants.StarknetChainId.SN_MAIN });
+    }
+  }, [status]);
+
+  const handleSwitch = () => {
+    switchChain();
+    setIsSelected(!isSelected);
+    setMenuTitle(isSelected ? "Sepolia" : "Mainnet");
+  };
 
   return (
     <div className="flex items-center justify-between w-full">
       <MenuItem title={menuTitle} icon="blockchain" />
       <Switch
         isSelected={isSelected}
-        isDisabled={status === "disconnected"}
         color="primary"
         size="sm"
-        onValueChange={() => switchChain()}
+        onValueChange={() => handleSwitch()}
       >
       </Switch>
     </div>

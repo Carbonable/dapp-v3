@@ -16,7 +16,7 @@ export default function DefaultLayout({ children }: { children: ReactNode }) {
             <Header />
           </header>
           <main className="flex flex-col md:flex-row">
-            <div className="hidden md:block md:w-[280px] border-r border-neutral-100 dark:border-neutral-200 md:h-screen">
+            <div className="hidden md:block md:w-[280px] border-r border-neutral-100 dark:border-neutral-700 md:h-screen">
               <LeftMenu />
             </div>
             <div className="w-full min-h-[calc(100vh_-_64px)] mt-[64px] max-w-5xl mx-auto px-4">
