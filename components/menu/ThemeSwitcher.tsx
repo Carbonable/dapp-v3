@@ -11,7 +11,7 @@ export default function ThemeSwitcher() {
       <Switch
         defaultSelected={theme === "light"}
         color="primary"
-        size="md"
+        size="sm"
         onValueChange={toggleTheme}
         thumbIcon={({isSelected, className}) =>
           isSelected ? <SunIcon className={className} /> : <MoonIcon className={className} />

@@ -16,7 +16,7 @@ interface MenuItemProps {
 export default function MenuItem({ title, icon, isExternal = false, isUppercase, link, className }: MenuItemProps) {
   const { theme } = useTheme();
   const wrapperClass = cn('flex items-center justify-start py-2 px-4', link && "rounded-md hover:bg-greenish-500 dark:hover:bg-greenish-500 cursor-pointer text-neutral-800 dark:text-neutral-100", className);
-  const textClass = cn('ml-2 font-semibold', isUppercase && 'uppercase');
+  const textClass = cn('ml-2 font-semibold capitalize', isUppercase && 'uppercase');
 
   if (link && isExternal) {
     return (

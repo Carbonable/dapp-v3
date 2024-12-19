@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { minifyAddressOrStarknetId } from "@/utils/starknet";
 import { useAccount, useStarkProfile } from "@starknet-react/core";
 import { useMemo } from "react";

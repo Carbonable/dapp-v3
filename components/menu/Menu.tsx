@@ -1,6 +1,7 @@
 import SectionTitle from "./SectionTitle";
 import ThemeSwitcher from "./ThemeSwitcher";
 import MenuItem from "./MenuItem";
+import ChainSwitcher from "./ChainSwitcher";
 export default function Menu() {
   return (
     <>
@@ -12,6 +13,7 @@ export default function Menu() {
       <div className="mt-8 md:mt-12">
         <SectionTitle title="Settings" />
         <ThemeSwitcher />
+        <ChainSwitcher />
       </div>
     </>
   );
