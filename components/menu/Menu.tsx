@@ -9,7 +9,7 @@ export default function Menu() {
         <MenuItem title="Portfolio" icon="portfolio" link="/" className="mb-4" />
         <MenuItem title="Staking" icon="staking" isExternal={true} link="https://voyager.online/staking-dashboard" />
       </div>
-      <div className="mt-12">
+      <div className="mt-8 md:mt-12">
         <SectionTitle title="Settings" />
         <ThemeSwitcher />
       </div>
