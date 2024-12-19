@@ -10,8 +10,8 @@ export default function ThemeSwitcher() {
       <MenuItem title="Theme" icon="theme" />
       <Switch
         defaultSelected={theme === "light"}
-        color="secondary"
-        size="lg"
+        color="primary"
+        size="md"
         onValueChange={toggleTheme}
         thumbIcon={({isSelected, className}) =>
           isSelected ? <SunIcon className={className} /> : <MoonIcon className={className} />

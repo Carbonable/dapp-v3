@@ -37,9 +37,9 @@ export default {
           1000: '#082015',
         },
         primary: {
-          DEFAULT: '#0AF2AD',
-          dark: '#087353',
-          light: '#A9FCE4'
+          DEFAULT: '#29A46F',
+          dark: '#145136',
+          light: '#75D9AD'
         },
         secondary: {
           DEFAULT: '#363840',

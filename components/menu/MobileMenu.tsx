@@ -1,7 +1,6 @@
 import { Bars3Icon } from "@heroicons/react/16/solid";
 import { Drawer, DrawerBody, DrawerContent, useDisclosure } from "@nextui-org/react";
-import SectionTitle from "./SectionTitle";
-import ThemeSwitcher from "./ThemeSwitcher";
+import Menu from "./Menu";
 
 export default function MobileMenu() {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
@@ -16,13 +15,7 @@ export default function MobileMenu() {
         <DrawerContent>
           <>
             <DrawerBody className="pt-12 pb-8">
-              <div>
-                <SectionTitle title="Navigation" />
-              </div>
-              <div className="mt-4">
-                <SectionTitle title="Settings" />
-                <ThemeSwitcher />
-              </div>
+              <Menu />
             </DrawerBody>
           </>
         </DrawerContent>

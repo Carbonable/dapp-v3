@@ -10,24 +10,23 @@ interface ThemeContextType {
 export const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Start with a default theme for SSR
+  const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<Theme>('light');
-  
-  // Initialize the theme after mounting
+
+  // Handle mounting
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as Theme;
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     const initialTheme = savedTheme || systemTheme;
     
     setTheme(initialTheme);
-    
-    if (initialTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    }
+    setMounted(true);
   }, []);
 
   // Handle theme changes
   useEffect(() => {
+    if (!mounted) return;
+
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
@@ -35,7 +34,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
-  }, [theme]);
+  }, [theme, mounted]);
 
   const toggleTheme = useCallback(() => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -45,6 +44,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     theme,
     toggleTheme
   }), [theme, toggleTheme]);
+
+  if (!mounted) {
+    return null; // or a loading skeleton/placeholder
+  }
 
   return (
     <ThemeContext.Provider value={value}>

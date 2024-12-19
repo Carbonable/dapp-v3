@@ -13,11 +13,11 @@ export default function DefaultLayout({ children }: { children: ReactNode }) {
         <header className="fixed top-0 w-full z-50 md:w-[calc(100vw_-_220px)] md:ml-[220px]">
           <Header />
         </header>
-        <main>
-          <div className="hidden md:block md:w-[220px] border-r border-neutral-300 dark:border-neutral-200 md:h-screen">
+        <main className="flex flex-col md:flex-row">
+          <div className="hidden md:block md:w-[280px] border-r border-neutral-100 dark:border-neutral-200 md:h-screen">
             <LeftMenu />
           </div>
-          <div className="w-full min-h-[calc(100vh_-_64px)] mt-[64px] md:w-[calc(100vw_-_220px)] md:ml-[220px]">
+          <div className="w-full min-h-[calc(100vh_-_64px)] mt-[64px] max-w-5xl mx-auto px-4">
             {children}
           </div>
         </main>
