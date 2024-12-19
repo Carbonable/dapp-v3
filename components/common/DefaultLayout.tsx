@@ -12,7 +12,7 @@ export default function DefaultLayout({ children }: { children: ReactNode }) {
     <NextUIProvider>
       <ThemeProvider>
         <StarknetProvider>
-          <header className="fixed top-0 w-full z-50 md:w-[calc(100vw_-_220px)] md:ml-[220px]">
+          <header className="fixed top-0 w-full z-50 md:w-[calc(100vw_-_280px)] md:ml-[280px]">
             <Header />
           </header>
           <main className="flex flex-col md:flex-row">

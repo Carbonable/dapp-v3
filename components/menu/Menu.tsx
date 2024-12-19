@@ -7,7 +7,7 @@ export default function Menu() {
     <>
       <div>
         <SectionTitle title="Navigation" />
-        <MenuItem title="Portfolio" icon="portfolio" link="/" className="mb-4" />
+        <MenuItem title="Portfolio" icon="portfolio" link="/" />
         <MenuItem title="Staking" icon="staking" isExternal={true} link="https://voyager.online/staking-dashboard" />
       </div>
       <div className="mt-8 md:mt-12">

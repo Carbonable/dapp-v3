@@ -30,7 +30,7 @@ export default function ConnectWallet() {
     return (
       <>
         <PowerIcon onClick={disconnectWallet} className="w-8 h-8 cursor-pointer border border-neutral-800 rounded-full p-1 hover:text-neutral-900 dark:border-neutral-200 dark:hover:border-neutral-100 md:hidden" />
-        <div className="hidden md:flex items-center cursor-pointer px-4 py-2 border border-neutral-500 dark:border-neutral-500 rounded-md" onClick={disconnectWallet}>
+        <div className="hidden md:flex items-center cursor-pointer px-4 py-2 border border-neutral-500 dark:border-neutral-500 rounded-full" onClick={disconnectWallet}>
           <Address />
         </div>
       </>
