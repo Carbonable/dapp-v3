@@ -1,7 +1,7 @@
 'use client';
 import MenuItem from "./MenuItem";
 import { Switch } from "@nextui-org/react";
-import { useAccount, useNetwork, useSwitchChain } from "@starknet-react/core";
+import { useNetwork, useSwitchChain } from "@starknet-react/core";
 import { constants } from "starknet";
 import { sepolia } from "@starknet-react/chains";
 import { useEffect, useState } from "react";
@@ -12,7 +12,6 @@ export default function ChainSwitcher() {
   const [isSelected, setIsSelected] = useState(defaultChain === sepolia.network ? false : true);
   const [menuTitle, setMenuTitle] = useState(defaultChain === sepolia.network ? "Sepolia" : "Mainnet");
   const { chain } = useNetwork();
-  const { status } = useAccount();
   const { switchChain } = useSwitchChain({
     params: {
       chainId:
@@ -23,22 +22,10 @@ export default function ChainSwitcher() {
   });
 
   useEffect(() => {
-    switchChain({ chainId: defaultChain === sepolia.network ? constants.StarknetChainId.SN_SEPOLIA : constants.StarknetChainId.SN_MAIN });
-  }, []);
-
-  useEffect(() => {
-    if (status === "connected") {
-      setIsSelected(chain.id === sepolia.id ? false : true);
-      setMenuTitle(chain.id === sepolia.id ? "Sepolia" : "Mainnet");
-      switchChain({ chainId: chain.id === sepolia.id ? constants.StarknetChainId.SN_SEPOLIA : constants.StarknetChainId.SN_MAIN });
-    }
-  }, [status]);
-
-  const handleSwitch = () => {
-    switchChain();
-    setIsSelected(!isSelected);
-    setMenuTitle(isSelected ? "Sepolia" : "Mainnet");
-  };
+    setIsSelected(chain.id === sepolia.id ? false : true);
+    setMenuTitle(chain.id === sepolia.id ? "Sepolia" : "Mainnet");
+    switchChain({ chainId: chain.id === sepolia.id ? constants.StarknetChainId.SN_SEPOLIA : constants.StarknetChainId.SN_MAIN });
+  }, [chain]);
 
   return (
     <div className="flex items-center justify-between w-full">
@@ -47,7 +34,7 @@ export default function ChainSwitcher() {
         isSelected={isSelected}
         color="primary"
         size="sm"
-        onValueChange={() => handleSwitch()}
+        onValueChange={() => switchChain()}
       >
       </Switch>
     </div>
