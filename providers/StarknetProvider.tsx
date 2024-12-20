@@ -6,7 +6,8 @@ import { StarknetConfig, nethermindProvider, publicProvider } from "@starknet-re
 import { ReactNode } from "react";
  
 export default function StarknetProvider({ children }: { children: ReactNode }) {
-  const chains = [mainnet, sepolia];
+  const defaultChain = process.env.NEXT_PUBLIC_DEFAULT_CHAIN;
+  const chains = defaultChain === sepolia.network ? [sepolia, mainnet] : [mainnet, sepolia];
   const netherminApiKey = process.env.NEXT_PUBLIC_NETHERMIND_API_KEY;
  
   const connectors = isInArgentMobileAppBrowser() ? [

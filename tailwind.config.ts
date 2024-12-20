@@ -59,6 +59,7 @@ export default {
         opacityLight: {
           5: 'rgba(208, 209, 214, 0.05)',
           10: 'rgba(208, 209, 214, 0.1)',
+          20: 'rgba(208, 209, 214, 0.2)',
           80: 'rgba(208, 209, 214, 0.8)',
         },
         opacityDark: {

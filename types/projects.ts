@@ -1,0 +1,1 @@
+export type ProjectView = 'all' | 'my-projects' ;
