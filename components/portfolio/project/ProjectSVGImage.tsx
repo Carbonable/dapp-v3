@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from "react";
 import { SVG } from '@svgdotjs/svg.js';
 import { useSlotURI } from "@/providers/SlotURIProvider";
