@@ -11,8 +11,8 @@ export interface Project {
 }
 
 export interface MetaData {
-  type: string;
-  category: string;
+  type: 'ARR' | 'REDD+';
+  category: 'Forest';
   area: string;
   carbon_units: string;
   ranking: string;
