@@ -8,6 +8,9 @@ export interface Project {
   certifier: string;
   metadata: MetaData;
   sdgs: string[];
+  due_diligence: string;
+  medium_article: string;
+  impact_reports: ImpactReport[];
 }
 
 export interface MetaData {
@@ -16,6 +19,12 @@ export interface MetaData {
   area: string;
   carbon_units: string;
   ranking: string;
+}
+
+export interface ImpactReport {
+  name: string;
+  link: string;
+  date: string;
 }
 
 export const projects_sepolia: Project[] = [
@@ -34,7 +43,16 @@ export const projects_sepolia: Project[] = [
       carbon_units: "1573",
       ranking: "A"
     },
-    sdgs: ["8", "13", "15"]
+    sdgs: ["8", "13", "15"],
+    due_diligence: "https://carbonable.github.io/projects/banegas-farm/Due_diligence_-_Banegas.pdf",
+    medium_article: "https://carbonable.medium.com/banegas-farm-reforesting-to-be-finance-by-carbonables-160-nfts-b4b36b5a4645",
+    impact_reports: [
+      {
+        name: "Impact September 22",
+        link: "https://carbonable.github.io/projects/banegas-farm/092022-BanegasFarm-QuarterlyReport.pdf",
+        date: "09-2022"
+      }
+    ]
   }
 ];
 
