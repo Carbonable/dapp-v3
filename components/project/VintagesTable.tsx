@@ -1,6 +1,7 @@
 'use client';
 import { Vintage, VintageStatus } from "@/types/projects";
-import { Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import { ArrowDownOnSquareIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { Chip, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { useMemo, useState } from "react";
 
 export default function VintagesTable({ vintages }: { vintages: Vintage[] }) {
@@ -32,6 +33,14 @@ export default function VintagesTable({ vintages }: { vintages: Vintage[] }) {
     return "Unknown";
   }
 
+  const statusColorMap: { [key: string]: "success" | "primary" | "secondary" | "danger" | "default" } = {
+    Audited: "success",
+    Confirmed: "primary",
+    Projected: "secondary",
+    Unset: "danger",
+    Unknown: "default",
+  };
+
   return (
     <div>
       <Table aria-label="Carbon distribution" className="mt-4">
@@ -47,11 +56,22 @@ export default function VintagesTable({ vintages }: { vintages: Vintage[] }) {
               <TableCell>{vintage.supply}</TableCell>
               <TableCell>{vintage.created}</TableCell>
               <TableCell>{vintage.failed}</TableCell>
-              <TableCell>{realStatus(vintage.status)}</TableCell>
               <TableCell>
-                <a href={"#"} target="_blank" rel="noreferrer" className="hover:underline">
-                  Generate certificate
-                </a>
+                <Chip color={statusColorMap[realStatus(vintage.status)]} size="sm">
+                  {realStatus(vintage.status)}
+                </Chip>
+              </TableCell>
+              <TableCell>
+                {realStatus(vintage.status) === "Audited" && 
+                  <div>
+                    <ArrowDownOnSquareIcon className="w-6 h-6" aria-label="Generate certificate" />
+                  </div>
+                }
+                {realStatus(vintage.status) !== "Audited" &&
+                  <div className="text-neutral-300">
+                    No certificate yet
+                  </div>
+                }
               </TableCell>
             </TableRow>
           ))}
@@ -62,7 +82,7 @@ export default function VintagesTable({ vintages }: { vintages: Vintage[] }) {
           isCompact
           showControls
           showShadow
-          color="primary"
+          color="default"
           page={page}
           total={pages}
           onChange={setPage}

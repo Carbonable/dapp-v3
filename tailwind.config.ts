@@ -36,20 +36,10 @@ export default {
           900: '#0E3725',
           1000: '#082015',
         },
-        primary: {
+        success: {
           DEFAULT: '#29A46F',
           dark: '#145136',
           light: '#75D9AD'
-        },
-        secondary: {
-          DEFAULT: '#363840',
-          dark: '#1F2128',
-          light: '#878A94'
-        },
-        orange: {
-          DEFAULT: '#CFBD70',
-          dark: '#877B44',
-          light: '#D9CC96'
         },
         blue: {
           DEFAULT: '#9EBAF0',

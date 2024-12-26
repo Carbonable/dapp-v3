@@ -31,7 +31,7 @@ export default function ChainSwitcher() {
       <MenuItem title={menuTitle} icon="blockchain" />
       <Switch
         isSelected={isSelected}
-        color="primary"
+        color="success"
         size="sm"
         onValueChange={() => switchChain()}
         isDisabled={status === "disconnected"}
