@@ -1,6 +1,6 @@
 import { Project } from "@/config/projects";
 import Title from "../common/Title";
-import { DocumentIcon, LinkIcon } from "@heroicons/react/24/outline";
+import { DocumentIcon, LinkIcon, MapPinIcon } from "@heroicons/react/24/outline";
 
 interface ProjectDeepDiveProps {
   project: Project;
@@ -26,7 +26,14 @@ export default function ProjectDeepDive({ project }: ProjectDeepDiveProps) {
           </div>
         </a>
       </div>
-      
+      <div className="mt-2">
+        <a href={project.map} target="_blank" rel="noreferrer">
+          <div className="flex items-center gap-2">
+            <MapPinIcon className="h-4 w-4" />
+            <div className="hover:underline">View on map</div>
+          </div>
+        </a>
+      </div>
     </>
   );
 }

@@ -11,6 +11,7 @@ export interface Project {
   due_diligence: string;
   medium_article: string;
   impact_reports: ImpactReport[];
+  map: string;
 }
 
 export interface MetaData {
@@ -52,7 +53,8 @@ export const projects_sepolia: Project[] = [
         link: "https://carbonable.github.io/projects/banegas-farm/092022-BanegasFarm-QuarterlyReport.pdf",
         date: "09-2022"
       }
-    ]
+    ],
+    map: "https://maps.app.goo.gl/F5FxPCEJJLkqLvz47"
   }
 ];
 
