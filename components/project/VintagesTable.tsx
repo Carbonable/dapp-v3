@@ -1,6 +1,6 @@
 'use client';
 import { Vintage, VintageStatus } from "@/types/projects";
-import { ArrowDownOnSquareIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { ArrowDownOnSquareIcon } from "@heroicons/react/24/outline";
 import { Chip, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { useMemo, useState } from "react";
 
