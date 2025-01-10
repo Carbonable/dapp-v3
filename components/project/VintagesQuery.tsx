@@ -46,7 +46,10 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
     <>
       <Title title={"Carbon distribution"} />
       <div className="mt-4">
-       <VintagesTable vintages={data} />
+       <VintagesTable
+        vintages={data}
+        project={project}
+      />
       </div>
     </>
   );

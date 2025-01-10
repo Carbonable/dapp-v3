@@ -23,3 +23,16 @@ export function convertToBigIntArray(balances: unknown): bigint[] {
     return [BigInt(0)];
   }
 };
+
+export const formatDecimal = (value: bigint, decimals: number, precision?: number): string => {
+  const divisor = Math.pow(10, decimals);
+  const formattedNumber = Number(value) / divisor;
+  
+  const options = {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+    useGrouping: false,
+  };
+  
+  return precision ? formattedNumber.toFixed(precision) : formattedNumber.toLocaleString('en-US', options);
+};

@@ -183,21 +183,17 @@ export function useProject(slug: string): {
   isLoading: boolean;
   isLoadingUserData: boolean;
   refreshUserData: () => Promise<void>;
-  projectsWithBalance: number;
-  myProjects: ProjectWithAbi[];
 } {
-  const { projects, isLoading, isLoadingUserData, refreshUserData, projectsWithBalance, myProjects } = useProjects();
+  const { projects, isLoading, isLoadingUserData, refreshUserData } = useProjects();
   
   // Don't show loading state if we already have the project
   const project = projects.find(p => p.id === slug);
   const effectiveIsLoading = isLoading && !project;
   
   return { 
-    project, 
+    project,
     isLoading: effectiveIsLoading, 
     isLoadingUserData, 
-    refreshUserData, 
-    projectsWithBalance, 
-    myProjects 
+    refreshUserData,
   };
 }
