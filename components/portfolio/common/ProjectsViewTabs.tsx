@@ -6,7 +6,7 @@ import { useAccount } from "@starknet-react/core";
 import { useEffect } from "react";
 
 export default function ProjectsViewTabs() {
-  const { selectedProjectsView, setSelectedProjectsView } = useProjects();
+  const { selectedProjectsView, setSelectedProjectsView, projectsWithBalance } = useProjects();
   const { status } = useAccount();
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function ProjectsViewTabs() {
       selectedKey={selectedProjectsView.toString()}
     >
       <Tab key="all" title="All" />
-      <Tab key="my-projects" title="My projects" />
+      <Tab key="my-projects" title={`My projects (${projectsWithBalance})`} />
     </Tabs>
   );
 }

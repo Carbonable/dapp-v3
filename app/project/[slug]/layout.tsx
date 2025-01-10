@@ -1,4 +1,3 @@
-import { ProjectsProvider } from "@/providers/ProjectsProvider";
 import { ArrowLeftIcon } from "@heroicons/react/16/solid";
 import Link from "next/link";
 
@@ -16,9 +15,7 @@ export default function Layout({
           <div className="ml-1 text-sm font-semibold">Back</div>
         </Link>
         <div className="p-4">
-          <ProjectsProvider>
             {children}
-          </ProjectsProvider>
         </div>
       </div>
     </div>

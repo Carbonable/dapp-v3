@@ -1,3 +1,5 @@
+import type { Abi, Contract } from 'starknet';
+
 export interface Project {
   id: string;
   project: string;
@@ -6,12 +8,19 @@ export interface Project {
   developer: string;
   dates: string;
   certifier: string;
+  decimals: number;
   metadata: MetaData;
   sdgs: string[];
   due_diligence: string;
   medium_article: string;
   impact_reports: ImpactReport[];
   map: string;
+}
+
+export interface ProjectWithAbi extends Project {
+  abi?: Abi;
+  contract?: Contract;
+  userBalance?: bigint[];
 }
 
 export interface MetaData {
@@ -31,12 +40,13 @@ export interface ImpactReport {
 export const projects_sepolia: Project[] = [
   {
     id: "banegas-farms",
-    project: "0x06b7ade36c9856773d69e87828433df0020359689c7d5b5b41c1853acc1dfa57",
+    project: "0x00542b4a81cad076be3cf1d05bfdb02396773ec40b5e8d25d62ba38151ac2e85",
     name: "Banegas Farms",
     country: "Costa Rica",
     developer: "Corcovado foundation",
     dates: "2022-2052",
     certifier: "ERS",
+    decimals: 9,
     metadata: {
       type: "ARR",
       category: "Forest",

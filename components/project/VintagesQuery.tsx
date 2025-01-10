@@ -1,23 +1,21 @@
 'use client';
-import { Project } from "@/config/projects";
+import { ProjectWithAbi } from "@/config/projects";
 import Title from "../common/Title";
-import { useProjectAbis } from "@/providers/ProjectAbiProvider";
 import { useReadContract } from "@starknet-react/core";
 import VintagesTable from "./VintagesTable";
 
 interface VintagesQueryProps {
-  project: Project;
+  project: ProjectWithAbi;
 }
 export default function VintagesQuery({ project }: VintagesQueryProps) {
-  const { projectAbi } = useProjectAbis();
   const { data, error, isLoading } = useReadContract({
-    abi: projectAbi,
+    abi: project.abi,
     address: project.project as `0x${string}`,
     functionName: "get_cc_vintages",
     args: [],
   });
 
-  if (projectAbi === undefined) {
+  if (project.abi === undefined) {
     return (
       <>
         <Title title={"Carbon distribution"} />
