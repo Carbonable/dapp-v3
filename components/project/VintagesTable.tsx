@@ -5,6 +5,7 @@ import { formatDecimal } from "@/utils/starknet";
 import { ArrowDownOnSquareIcon } from "@heroicons/react/24/outline";
 import { Chip, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { useMemo, useState } from "react";
+import { CertificateDownloadButton } from "../certificate/CertificateDownloadButton";
 
 interface VintagesTableProps {
   vintages: Vintage[];
@@ -60,7 +61,7 @@ export default function VintagesTable({ vintages, project }: VintagesTableProps)
           {paginatedVintages.map((vintage, index) => (
             <TableRow key={index}>
               <TableCell>{vintage.year}</TableCell>
-              <TableCell>{project.userBalance ? formatDecimal(project.userBalance[index], project.decimals, 5) : 'n/a'}</TableCell>
+              <TableCell>{project.userBalance ? formatDecimal(project.userBalance[index], project.decimals, 5) : '0'}</TableCell>
               <TableCell>{formatDecimal(vintage.supply, project.decimals, 5)}</TableCell>
               <TableCell>{formatDecimal(vintage.created, project.decimals, 5)}</TableCell>
               <TableCell>{formatDecimal(vintage.failed, project.decimals, 5)}</TableCell>
@@ -77,7 +78,7 @@ export default function VintagesTable({ vintages, project }: VintagesTableProps)
                 }
                 {realStatus(vintage.status) !== "Audited" &&
                   <div className="text-neutral-300">
-                    No certificate yet
+                    <CertificateDownloadButton data={{ title: `Carbon distribution for ${vintage.year}` }} />
                   </div>
                 }
               </TableCell>
