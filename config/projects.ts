@@ -3,6 +3,7 @@ import type { Abi, Contract } from 'starknet';
 export interface Project {
   id: string;
   project: string;
+  offsettor: string;
   name: string;
   country: string;
   developer: string;
@@ -21,6 +22,8 @@ export interface ProjectWithAbi extends Project {
   abi?: Abi;
   contract?: Contract;
   userBalance?: bigint[];
+  offsettorAbi?: Abi;
+  offsettorContract?: Contract;
 }
 
 export interface MetaData {
@@ -41,6 +44,7 @@ export const projects_sepolia: Project[] = [
   {
     id: "banegas-farms",
     project: "0x00542b4a81cad076be3cf1d05bfdb02396773ec40b5e8d25d62ba38151ac2e85",
+    offsettor: "0x07df17a28fd08eb4b70145f0702cadb1f0ae0df7c24ced963c2d9afca00ae61c",
     name: "Banegas Farms",
     country: "Costa Rica",
     developer: "Corcovado foundation",

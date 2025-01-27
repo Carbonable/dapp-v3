@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { ProjectWithAbi } from "@/config/projects";
 import { Vintage, VintageStatus } from "@/types/projects";
@@ -9,35 +10,60 @@ import { CertificateDownloadButton } from "../certificate/CertificateDownloadBut
 
 interface VintagesTableProps {
   vintages: Vintage[];
+  offsettorData: any[];
   project: ProjectWithAbi;
+  isLoadingOffsettorData: boolean;
 }
 
-export default function VintagesTable({ vintages, project }: VintagesTableProps) {
-  const columns = ["Year", "My supply", "Total supply", "Created", "Failed", "Status", "Actions"];
+export default function VintagesTable({ 
+  vintages, 
+  offsettorData, 
+  project, 
+  isLoadingOffsettorData 
+}: VintagesTableProps) {
+  const columns = [
+    "Year", 
+    "My supply",
+    "Offsetting requests",
+    "Total supply",
+    "Created",
+    "Failed",
+    "Status",
+    "Actions"
+  ];
   const rowsPerPage = 10;
   const [page, setPage] = useState(1);
   const pages = Math.ceil(vintages.length / rowsPerPage);
 
   const paginatedVintages = useMemo(() => {
-      const start = (page - 1) * rowsPerPage;
-      const end = start + rowsPerPage;
-  
-      return vintages.slice(start, end);
-    }, [page, vintages, rowsPerPage]);
-  
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return vintages.slice(start, end);
+  }, [page, vintages, rowsPerPage]);
+
+  // Calculate offsetting requests for each vintage
+  const getOffsettingRequests = (vintage: Vintage) => {
+    if (isLoadingOffsettorData || !offsettorData) return '0';
+    
+    const requests = offsettorData.filter((request: any) => 
+      request.vintage === vintage.year
+    );
+
+    if (requests.length === 0) return '0';
+    
+    return formatDecimal(
+      requests.reduce((acc: bigint, req: any) => acc + BigInt(req.amount), BigInt(0)),
+      project.decimals,
+      5
+    );
+  };
+
   const realStatus = (status: VintageStatus) => {
-    if (status.variant.Audited !== undefined) {
-      return "Audited";
-    }
-    if (status.variant.Confirmed !== undefined) {
-      return "Confirmed";
-    }
-    if (status.variant.Projected !== undefined) {
-      return "Projected";
-    }
-    if (status.variant.Unset !== undefined) {
-      return "Unset";
-    }
+    if (status.variant.Audited !== undefined) return "Audited";
+    if (status.variant.Confirmed !== undefined) return "Confirmed";
+    if (status.variant.Projected !== undefined) return "Projected";
+    if (status.variant.Unset !== undefined) return "Unset";
     return "Unknown";
   }
 
@@ -61,7 +87,12 @@ export default function VintagesTable({ vintages, project }: VintagesTableProps)
           {paginatedVintages.map((vintage, index) => (
             <TableRow key={index}>
               <TableCell>{vintage.year}</TableCell>
-              <TableCell>{project.userBalance ? formatDecimal(project.userBalance[index], project.decimals, 5) : '0'}</TableCell>
+              <TableCell>
+                {project.userBalance 
+                  ? formatDecimal(project.userBalance[index], project.decimals, 5) 
+                  : '0'}
+              </TableCell>
+              <TableCell>{getOffsettingRequests(vintage)}</TableCell>
               <TableCell>{formatDecimal(vintage.supply, project.decimals, 5)}</TableCell>
               <TableCell>{formatDecimal(vintage.created, project.decimals, 5)}</TableCell>
               <TableCell>{formatDecimal(vintage.failed, project.decimals, 5)}</TableCell>

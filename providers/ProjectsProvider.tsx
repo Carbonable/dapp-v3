@@ -59,17 +59,30 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
       const projectsWithAbis = await Promise.all(
         baseProjects.map(async (project): Promise<ProjectWithAbi> => {
           try {
-            const abi = await fetchAbi(provider, project.project);
+            // Fetch Project ABI
+            const projectAbi = await fetchAbi(provider, project.project);
+            const offsettorAbi = await fetchAbi(provider, project.offsettor);
 
-            if (!abi) {
+            if (!projectAbi) {
               console.error(`No ABI found for project ${project.project}`);
               return { ...project };
             }
 
-            const contract = new Contract(abi, project.project, provider);
-            return { ...project, abi, contract };
+            // Initialize both contracts
+            const contract = new Contract(projectAbi, project.project, provider);
+            const offsettorContract = offsettorAbi 
+              ? new Contract(offsettorAbi, project.offsettor, provider)
+              : undefined;
+
+            return { 
+              ...project, 
+              abi: projectAbi, 
+              contract,
+              offsettorAbi,
+              offsettorContract
+            };
           } catch (error) {
-            console.error(`Failed to fetch ABI for project ${project.project}:`, error);
+            console.error(`Failed to fetch ABIs for project ${project.project}:`, error);
             return { ...project };
           }
         })
@@ -123,7 +136,11 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
     console.log('Resetting user data');
     setProjects(projects => projects.map(project => ({
       ...project,
-      userBalance: undefined
+      abi: undefined,
+      contract: undefined,
+      userBalance: undefined,
+      offsettorContract: undefined,
+      offsettorAbi: undefined
     })));
   }, []);
 
