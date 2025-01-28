@@ -1,7 +1,7 @@
 'use client';
 import { useProjects } from "@/providers/ProjectsProvider";
 import { ProjectView } from "@/types/projects";
-import { Tab, Tabs } from "@nextui-org/react";
+import { Tab, Tabs } from "@heroui/react";
 import { useAccount } from "@starknet-react/core";
 import { useEffect } from "react";
 

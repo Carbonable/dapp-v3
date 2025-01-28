@@ -3,27 +3,45 @@
 import { ProjectWithAbi } from "@/config/projects";
 import { Vintage, VintageStatus } from "@/types/projects";
 import { formatDecimal } from "@/utils/starknet";
-import { ArrowDownOnSquareIcon } from "@heroicons/react/24/outline";
-import { Chip, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import { Alert, Button, Chip, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react";
 import { useMemo, useState } from "react";
 import { CertificateDownloadButton } from "../certificate/CertificateDownloadButton";
+import { useAccount, useNetwork } from "@starknet-react/core";
+import OffsetRequestModal from "./OffsetRequest";
+
+interface OffsetData {
+  amount: bigint;
+  filled: bigint;
+  project_address: bigint;
+  vintage: bigint;
+}
+
+type OffsetMetrics = {
+  requested: bigint;
+  fulfilled: bigint;
+};
 
 interface VintagesTableProps {
   vintages: Vintage[];
   offsettorData: any[];
   project: ProjectWithAbi;
   isLoadingOffsettorData: boolean;
+  refetchOffsettor: () => void;
+  refetchVintages: () => void;
 }
 
 export default function VintagesTable({ 
   vintages, 
   offsettorData, 
-  project, 
-  isLoadingOffsettorData 
+  project,
+  refetchOffsettor,
+  refetchVintages,
 }: VintagesTableProps) {
+  const { isConnected } = useAccount();
   const columns = [
     "Year", 
     "My supply",
+    "Offsetting fullfiled",
     "Offsetting requests",
     "Total supply",
     "Created",
@@ -34,6 +52,9 @@ export default function VintagesTable({
   const rowsPerPage = 10;
   const [page, setPage] = useState(1);
   const pages = Math.ceil(vintages.length / rowsPerPage);
+  const [displayAlert, setDisplayAlert] = useState(false);
+  const [txHash, setTxHash] = useState('');
+  const { chain } = useNetwork();
 
   const paginatedVintages = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -43,20 +64,41 @@ export default function VintagesTable({
   }, [page, vintages, rowsPerPage]);
 
   // Calculate offsetting requests for each vintage
-  const getOffsettingRequests = (vintage: Vintage) => {
-    if (isLoadingOffsettorData || !offsettorData) return '0';
-    
-    const requests = offsettorData.filter((request: any) => 
-      request.vintage === vintage.year
+  const calculateOffsetMetrics = (offsettorData: OffsetData[], targetVintage: number): OffsetMetrics => {
+    if (!offsettorData) {
+      return { requested: BigInt(0), fulfilled: BigInt(0) };
+    }
+  
+    return offsettorData.reduce(
+      (acc, request) => {
+        if (request.vintage === BigInt(targetVintage)) {
+          return {
+            requested: acc.requested + request.amount,
+            fulfilled: acc.fulfilled + request.filled
+          };
+        }
+        return acc;
+      },
+      { requested: BigInt(0), fulfilled: BigInt(0) }
     );
-
-    if (requests.length === 0) return '0';
+  };
+  
+  const getOffsetRequested = (vintage: Vintage, offsettorData: OffsetData[], index: number, page: number): string => {
+    if (!offsettorData) return '0';
     
-    return formatDecimal(
-      requests.reduce((acc: bigint, req: any) => acc + BigInt(req.amount), BigInt(0)),
-      project.decimals,
-      5
-    );
+    const targetVintage = index + 1 + ((page - 1) * rowsPerPage);
+    const metrics = calculateOffsetMetrics(offsettorData, targetVintage);
+    
+    return formatDecimal(metrics.requested, project.decimals, 5);
+  };
+  
+  const getOffsetFulfilled = (vintage: Vintage, offsettorData: OffsetData[], index: number, page: number): string => {
+    if (!offsettorData) return '0';
+    
+    const targetVintage = index + 1 + ((page - 1) * rowsPerPage);
+    const metrics = calculateOffsetMetrics(offsettorData, targetVintage);
+    
+    return formatDecimal(metrics.fulfilled, project.decimals, 5);
   };
 
   const realStatus = (status: VintageStatus) => {
@@ -77,6 +119,27 @@ export default function VintagesTable({
 
   return (
     <div>
+      {displayAlert && (
+        <div className="mt-4">
+          <Alert
+            color="success" 
+            title="Transaction sent successfully" 
+            endContent={
+              <Button color="success" size="sm" variant="flat" onPress={() => setDisplayAlert(false)}>
+                Close
+              </Button>
+            }
+          >
+            <a 
+              href={`https://${chain.name === 'Starknet Sepolia Testnet' ? 'sepolia.' : ''}voyager.online/tx/${txHash}`} 
+              target="_blank" 
+              rel="noreferrer"
+            >
+              View on explorer
+            </a>
+          </Alert>
+        </div>
+      )}
       <Table aria-label="Carbon distribution" className="mt-4">
         <TableHeader>
           {columns.map((column, index) => (
@@ -89,10 +152,11 @@ export default function VintagesTable({
               <TableCell>{vintage.year}</TableCell>
               <TableCell>
                 {project.userBalance 
-                  ? formatDecimal(project.userBalance[index], project.decimals, 5) 
+                  ? formatDecimal(project.userBalance[index + ((page - 1) * rowsPerPage)], project.decimals, 5) 
                   : '0'}
               </TableCell>
-              <TableCell>{getOffsettingRequests(vintage)}</TableCell>
+              <TableCell>{getOffsetFulfilled(vintage, offsettorData, index, page)}</TableCell>
+              <TableCell>{getOffsetRequested(vintage, offsettorData, index, page)}</TableCell>
               <TableCell>{formatDecimal(vintage.supply, project.decimals, 5)}</TableCell>
               <TableCell>{formatDecimal(vintage.created, project.decimals, 5)}</TableCell>
               <TableCell>{formatDecimal(vintage.failed, project.decimals, 5)}</TableCell>
@@ -102,16 +166,23 @@ export default function VintagesTable({
                 </Chip>
               </TableCell>
               <TableCell>
-                {realStatus(vintage.status) === "Audited" && 
-                  <div>
-                    <ArrowDownOnSquareIcon className="w-6 h-6" aria-label="Generate certificate" />
-                  </div>
-                }
-                {realStatus(vintage.status) !== "Audited" &&
-                  <div className="text-neutral-300">
-                    <CertificateDownloadButton data={{ title: `Carbon distribution for ${vintage.year}` }} />
-                  </div>
-                }
+                <div className="text-neutral-300 flex items-center gap-2">
+                  <OffsetRequestModal 
+                    maxAmount={project.userBalance ? project.userBalance[index] : 0} 
+                    vintage={BigInt(index + 1 + ((page - 1) * rowsPerPage))} 
+                    buttonDisabled={!isConnected}
+                    decimals={project.decimals}
+                    project={project}
+                    setDisplayAlert={setDisplayAlert}
+                    setTxHash={setTxHash}
+                    refetchOffsettor={refetchOffsettor}
+                    refetchVintages={refetchVintages}
+                  />
+                  <CertificateDownloadButton 
+                    disabled={!isConnected} 
+                    data={{ title: `Carbon distribution for ${vintage.year}` }} 
+                  />
+                </div>
               </TableCell>
             </TableRow>
           ))}

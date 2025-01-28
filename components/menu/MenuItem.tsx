@@ -1,6 +1,6 @@
 import { useTheme } from "@/providers/ThemeProvider";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/16/solid";
-import { cn } from "@nextui-org/react";
+import { cn } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
 

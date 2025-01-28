@@ -1,6 +1,6 @@
 import { Project } from "@/config/projects";
 import Title from "../common/Title";
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react";
 
 interface ImpactReportsProps {
   project: Project;

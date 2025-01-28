@@ -1,6 +1,6 @@
 import { useTheme } from "@/providers/ThemeProvider";
 import MenuItem from "./MenuItem";
-import { Switch } from "@nextui-org/react";
+import { Switch } from "@heroui/react";
 import { MoonIcon, SunIcon } from "@heroicons/react/16/solid";
 
 export default function ThemeSwitcher() {

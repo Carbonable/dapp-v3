@@ -24,7 +24,7 @@ export function convertToBigIntArray(balances: unknown): bigint[] {
   }
 };
 
-export const formatDecimal = (value: bigint, decimals: number, precision?: number): string => {
+export const formatDecimal = (value: bigint | number, decimals: number, precision?: number): string => {
   const divisor = Math.pow(10, decimals);
   const formattedNumber = Number(value) / divisor;
   

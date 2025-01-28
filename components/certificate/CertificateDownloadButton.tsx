@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { CertificateData } from '@/types/certificate';
 import { generateCertificate } from '@/actions/generateCertificate';
 import Button from '../common/Button';
+import { cn } from '@heroui/react';
 
 interface Props {
   data: CertificateData;
+  disabled?: boolean;
 }
 
-export function CertificateDownloadButton({ data }: Props) {
+export function CertificateDownloadButton({ data, disabled }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleDownload = async () => {
@@ -37,8 +39,8 @@ export function CertificateDownloadButton({ data }: Props) {
   return (
     <Button
       onClick={handleDownload}
-      disabled={isGenerating}
-      classNames="text-xs w-fit px-2 py-1"
+      disabled={isGenerating || disabled}
+      classNames={cn("text-xs w-fit px-2 py-1 whitespace-nowrap", disabled && "opacity-50 cursor-not-allowed hover:opacity-50")}
     >
       {isGenerating ? 'Generating...' : 'Download Certificate'}
     </Button>

@@ -1,5 +1,5 @@
 import { Bars3Icon } from "@heroicons/react/16/solid";
-import { Drawer, DrawerBody, DrawerContent, DrawerHeader, useDisclosure } from "@nextui-org/react";
+import { Drawer, DrawerBody, DrawerContent, DrawerHeader, useDisclosure } from "@heroui/react";
 import Menu from "./Menu";
 import Address from "../common/Address";
 

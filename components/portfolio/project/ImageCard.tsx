@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable @next/next/no-img-element */
 import { Project } from '@/config/projects';
-import { cn } from '@nextui-org/react';
+import { cn } from "@heroui/react";
 import { useRouter } from 'next/navigation';
 
 export interface ImageCardProps {

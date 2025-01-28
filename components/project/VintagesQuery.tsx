@@ -12,24 +12,27 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
   const { 
     data: vintagesData, 
     error: vintagesError, 
-    isLoading: isLoadingVintages 
+    isLoading: isLoadingVintages,
+    refetch: refetchVintages,
   } = useReadContract({
     abi: project.abi,
     address: project.project as `0x${string}`,
     functionName: "get_cc_vintages",
     args: [],
+    enabled: !!project.abi && !!address,
   });
 
   const {
     data: offsettorData,
     error: offsettorError,
-    isLoading: isLoadingOffsettor
+    isLoading: isLoadingOffsettor,
+    refetch: refetchOffsettor,
   } = useReadContract({
     abi: project.offsettorAbi,
     address: project.offsettor as `0x${string}`,
     functionName: "get_requests",
     args: [address],
-    enabled: !!project.offsettorAbi && !!address, // Only run if offsettor ABI is available
+    enabled: !!project.offsettorAbi && !!address,
   });
 
   if (project.abi === undefined) {
@@ -63,8 +66,6 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
     );
   }
 
-  console.log(offsettorData)
-
   return (
     <>
       <Title title={"Carbon distribution"} />
@@ -74,6 +75,8 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
           offsettorData={offsettorData || []}
           project={project}
           isLoadingOffsettorData={isLoadingOffsettor}
+          refetchOffsettor={refetchOffsettor}
+          refetchVintages={refetchVintages}
         />
       </div>
     </>

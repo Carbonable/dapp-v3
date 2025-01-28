@@ -104,7 +104,6 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
     if (!isConnected || !address || projects.length === 0) return;
 
     setIsLoadingUserData(true);
-    console.log('Fetching user data');
   
     try {
       const updatedProjects = await Promise.all(
@@ -133,7 +132,6 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
   }, [isConnected, address]);
 
   const resetUserData = useCallback(() => {
-    console.log('Resetting user data');
     setProjects(projects => projects.map(project => ({
       ...project,
       abi: undefined,

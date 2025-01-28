@@ -1,6 +1,6 @@
 'use client';
 import MenuItem from "./MenuItem";
-import { Switch } from "@nextui-org/react";
+import { Switch } from "@heroui/react";
 import { useAccount, useNetwork, useSwitchChain } from "@starknet-react/core";
 import { constants } from "starknet";
 import { sepolia } from "@starknet-react/chains";
