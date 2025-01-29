@@ -40,7 +40,7 @@ export function CertificateDownloadButton({ data, disabled }: Props) {
     <Button
       onClick={handleDownload}
       disabled={isGenerating || disabled}
-      classNames={cn("text-xs w-fit px-2 py-1 whitespace-nowrap", disabled && "opacity-50 cursor-not-allowed hover:opacity-50")}
+      classNames={cn("text-xs w-fit px-2 py-1 whitespace-nowrap bg-greenish-500 text-neutral-50 border-greenish-500 dark:bg-greenish-500 dark:text-neutral-50 dark:border-greenish-500 hover:brightness-110", disabled && "opacity-50 cursor-not-allowed hover:opacity-50")}
     >
       {isGenerating ? 'Generating...' : 'Download Certificate'}
     </Button>

@@ -3,12 +3,14 @@ import { ProjectWithAbi } from "@/config/projects";
 import Title from "../common/Title";
 import { useAccount, useReadContract } from "@starknet-react/core";
 import VintagesTable from "./VintagesTable";
+import { CertificateDownloadButton } from "../certificate/CertificateDownloadButton";
+import { OffsetData, Vintage } from "@/types/projects";
 
 interface VintagesQueryProps {
   project: ProjectWithAbi;
 }
 export default function VintagesQuery({ project }: VintagesQueryProps) {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const { 
     data: vintagesData, 
     error: vintagesError, 
@@ -68,7 +70,26 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
 
   return (
     <>
-      <Title title={"Carbon distribution"} />
+      <div className="flex justify-between items-center">
+        <Title title={"Carbon distribution"} />
+        <CertificateDownloadButton
+          disabled={!isConnected} 
+          data={{ 
+            title: `Carbon distribution`,
+            deliveredTo: address,
+            certifier: project.certifier,
+            developer: project.developer,
+            projectName: project.name,
+            location: project.country,
+            projectType: project.metadata.type,
+            category: project.metadata.category,
+            gpsLocation: project.gpsLocation,
+            vintages: vintagesData as Vintage[] || [],
+            offsettorData: offsettorData as OffsetData [] || [],
+            decimals: project.decimals,
+          }} 
+        />
+      </div>
       <div className="mt-4">
         <VintagesTable
           vintages={vintagesData || []}

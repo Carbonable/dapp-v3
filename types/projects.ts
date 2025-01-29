@@ -17,3 +17,15 @@ export type Vintage = {
   year: bigint;
   status: VintageStatus;
 };
+
+export interface OffsetData {
+  amount: bigint;
+  filled: bigint;
+  project_address: bigint;
+  vintage: bigint;
+}
+
+export type OffsetMetrics = {
+  requested: bigint;
+  fulfilled: bigint;
+};

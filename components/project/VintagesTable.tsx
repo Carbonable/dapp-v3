@@ -1,25 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { ProjectWithAbi } from "@/config/projects";
-import { Vintage, VintageStatus } from "@/types/projects";
+import { OffsetData, OffsetMetrics, Vintage, VintageStatus } from "@/types/projects";
 import { formatDecimal } from "@/utils/starknet";
 import { Alert, Button, Chip, Pagination, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react";
 import { useMemo, useState } from "react";
-import { CertificateDownloadButton } from "../certificate/CertificateDownloadButton";
 import { useAccount, useNetwork } from "@starknet-react/core";
 import OffsetRequestModal from "./OffsetRequest";
-
-interface OffsetData {
-  amount: bigint;
-  filled: bigint;
-  project_address: bigint;
-  vintage: bigint;
-}
-
-type OffsetMetrics = {
-  requested: bigint;
-  fulfilled: bigint;
-};
 
 interface VintagesTableProps {
   vintages: Vintage[];
@@ -83,7 +70,7 @@ export default function VintagesTable({
     );
   };
   
-  const getOffsetRequested = (vintage: Vintage, offsettorData: OffsetData[], index: number, page: number): string => {
+  const getOffsetRequested = (offsettorData: OffsetData[], index: number, page: number): string => {
     if (!offsettorData) return '0';
     
     const targetVintage = index + 1 + ((page - 1) * rowsPerPage);
@@ -92,7 +79,7 @@ export default function VintagesTable({
     return formatDecimal(metrics.requested, project.decimals, 5);
   };
   
-  const getOffsetFulfilled = (vintage: Vintage, offsettorData: OffsetData[], index: number, page: number): string => {
+  const getOffsetFulfilled = (offsettorData: OffsetData[], index: number, page: number): string => {
     if (!offsettorData) return '0';
     
     const targetVintage = index + 1 + ((page - 1) * rowsPerPage);
@@ -155,8 +142,8 @@ export default function VintagesTable({
                   ? formatDecimal(project.userBalance[index + ((page - 1) * rowsPerPage)], project.decimals, 5) 
                   : '0'}
               </TableCell>
-              <TableCell>{getOffsetFulfilled(vintage, offsettorData, index, page)}</TableCell>
-              <TableCell>{getOffsetRequested(vintage, offsettorData, index, page)}</TableCell>
+              <TableCell>{getOffsetFulfilled(offsettorData, index, page)}</TableCell>
+              <TableCell>{getOffsetRequested(offsettorData, index, page)}</TableCell>
               <TableCell>{formatDecimal(vintage.supply, project.decimals, 5)}</TableCell>
               <TableCell>{formatDecimal(vintage.created, project.decimals, 5)}</TableCell>
               <TableCell>{formatDecimal(vintage.failed, project.decimals, 5)}</TableCell>
@@ -177,10 +164,6 @@ export default function VintagesTable({
                     setTxHash={setTxHash}
                     refetchOffsettor={refetchOffsettor}
                     refetchVintages={refetchVintages}
-                  />
-                  <CertificateDownloadButton 
-                    disabled={!isConnected} 
-                    data={{ title: `Carbon distribution for ${vintage.year}` }} 
                   />
                 </div>
               </TableCell>

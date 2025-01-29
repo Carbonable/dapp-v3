@@ -16,6 +16,7 @@ export interface Project {
   medium_article: string;
   impact_reports: ImpactReport[];
   map: string;
+  gpsLocation: string;
 }
 
 export interface ProjectWithAbi extends Project {
@@ -68,7 +69,8 @@ export const projects_sepolia: Project[] = [
         date: "09-2022"
       }
     ],
-    map: "https://maps.app.goo.gl/F5FxPCEJJLkqLvz47"
+    map: "https://maps.app.goo.gl/F5FxPCEJJLkqLvz47",
+    gpsLocation: "41.40338, 2.17403"
   }
 ];
 
