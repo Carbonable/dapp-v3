@@ -38,17 +38,53 @@ export function getVintageYear(vintageIndex: bigint, vintages: Vintage[]): strin
 
 export function formatDecimalValue(value: bigint, decimals: number): string {
   if (decimals === 0) return value.toString();
+
+  const divisor = BigInt(10 ** decimals);
+  const integerPart = value / divisor;
+  const decimalPart = value % divisor;
   
-  const stringValue = value.toString().padStart(decimals + 1, '0');
-  const integerPart = stringValue.slice(0, -decimals) || '0';
-  const decimalPart = stringValue.slice(-decimals);
+  if (decimalPart === 0n) {
+    return integerPart.toString();
+  }
+
+  // Convert to string and pad with zeros
+  const decimalStr = decimalPart.toString().padStart(decimals, '0');
   
-  // Remove trailing zeros from decimal part
-  const trimmedDecimalPart = decimalPart.replace(/0+$/, '');
+  // Process each digit to handle rounding
+  let shouldRound = false;
+  const digits = decimalStr.split('');
   
-  return trimmedDecimalPart 
-    ? `${integerPart}.${trimmedDecimalPart}`
-    : integerPart;
+  // Check if we need to round up (if any remaining digits are non-zero)
+  for (let i = digits.length - 1; i >= 0; i--) {
+    if (parseInt(digits[i]) > 0) {
+      shouldRound = true;
+      break;
+    }
+  }
+  
+  if (shouldRound) {
+    let carry = 1;
+    for (let i = digits.length - 1; i >= 0; i--) {
+      let digit = parseInt(digits[i]) + carry;
+      if (digit === 10) {
+        digit = 0;
+        carry = 1;
+      } else {
+        carry = 0;
+      }
+      digits[i] = digit.toString();
+    }
+    if (carry === 1) {
+      return (integerPart + 1n).toString();
+    }
+  }
+  
+  // Remove trailing zeros
+  const finalDecimal = digits.join('').replace(/0+$/, '');
+  
+  return finalDecimal 
+    ? `${integerPart}.${finalDecimal}`
+    : integerPart.toString();
 }
 
 export function drawInfoSection(page: PDFPage, props: InfoSectionProps) {
