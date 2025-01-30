@@ -5,12 +5,15 @@ import { useAccount, useReadContract } from "@starknet-react/core";
 import VintagesTable from "./VintagesTable";
 import { CertificateDownloadButton } from "../certificate/CertificateDownloadButton";
 import { OffsetData, Vintage } from "@/types/projects";
+import { useEffect, useState } from "react";
+import { num } from "starknet";
 
 interface VintagesQueryProps {
   project: ProjectWithAbi;
 }
 export default function VintagesQuery({ project }: VintagesQueryProps) {
   const { address, isConnected } = useAccount();
+  const [filteredOffsettorData, setFilteredOffsettorData] = useState<OffsetData[]>([]);
   const { 
     data: vintagesData, 
     error: vintagesError, 
@@ -21,7 +24,7 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
     address: project.project as `0x${string}`,
     functionName: "get_cc_vintages",
     args: [],
-    enabled: !!project.abi && !!address,
+    enabled: !!project.abi ,
   });
 
   const {
@@ -36,6 +39,14 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
     args: [address],
     enabled: !!project.offsettorAbi && !!address,
   });
+
+  useEffect(() => {
+    if (!offsettorData) return;
+    setFilteredOffsettorData((offsettorData as OffsetData[]).filter((data) => data.project_address === num.toBigInt(project.project)));
+  }, [offsettorData]);
+
+  console.log('offsettorData', offsettorData);
+  console.log('filteredOffsettorData', filteredOffsettorData);
 
   if (project.abi === undefined) {
     return (
@@ -85,7 +96,7 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
             category: project.metadata.category,
             gpsLocation: project.gpsLocation,
             vintages: vintagesData as Vintage[] || [],
-            offsettorData: offsettorData as OffsetData [] || [],
+            offsettorData: filteredOffsettorData || [],
             decimals: project.decimals,
           }} 
         />

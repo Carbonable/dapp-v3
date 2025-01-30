@@ -5,6 +5,7 @@ import { CertificateData } from '@/types/certificate';
 import { generateCertificate } from '@/actions/generateCertificate';
 import Button from '../common/Button';
 import { cn } from '@heroui/react';
+import { useNetwork } from '@starknet-react/core';
 
 interface Props {
   data: CertificateData;
@@ -13,13 +14,14 @@ interface Props {
 
 export function CertificateDownloadButton({ data, disabled }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const { chain } = useNetwork();
 
   const handleDownload = async () => {
     try {
       setIsGenerating(true);
       
       // Call server action
-      const pdfBase64 = await generateCertificate(data);
+      const pdfBase64 = await generateCertificate(data, chain.name);
       
       // Create download link
       const link = document.createElement('a');

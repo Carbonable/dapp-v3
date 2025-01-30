@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export type ProjectView = 'all' | 'my-projects' ;
 
 export type VintageStatus = {
@@ -23,6 +22,7 @@ export interface OffsetData {
   filled: bigint;
   project_address: bigint;
   vintage: bigint;
+  tx_hash: bigint;
 }
 
 export type OffsetMetrics = {

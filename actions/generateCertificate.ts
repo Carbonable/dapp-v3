@@ -1,68 +1,62 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// lib/certificate-generator.ts
 'use server'
 
-import { CertificateData } from '@/types/certificate';
-import { PDFDocument, rgb, RGB, PDFPage } from 'pdf-lib';
+import { PDFDocument, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import path from 'path';
 import { readFileSync } from 'fs';
 import { processSummaryData } from '@/utils/certificates';
+import { CertificateData } from '@/types/certificate';
+import { Colors, DetailColumn, PageDimensions, SummaryMetric } from './certificates/certificates-types';
+import { addTablePages, drawInfoSection, pxToPt, rgbFromHex } from './certificates/certificates-helper';
 
-// Helper functions
-const pxToPt = (px: number) => px * 0.75;
-
-const rgbFromHex = (hex: string): RGB => {
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
-  return rgb(r, g, b);
-};
-
-interface ColorWithOpacity {
-  color: RGB;
-  opacity?: number;
-}
-
-export async function generateCertificate(data: CertificateData): Promise<string> {
+export async function generateCertificate(data: CertificateData, chain: string): Promise<string> {
   try {
-    // Create PDF document with custom dimensions
+    // Create PDF document
     const pdfDoc = await PDFDocument.create();
     pdfDoc.registerFontkit(fontkit);
     
-    // Load and embed custom Inter font
+    // Load fonts
     const interFontPath = path.join(process.cwd(), 'public/fonts/Inter-Regular.ttf');
     const interBoldPath = path.join(process.cwd(), 'public/fonts/Inter-Bold.ttf');
     const interSemiBoldPath = path.join(process.cwd(), 'public/fonts/Inter-SemiBold.ttf');
     
-    const interFontBytes = readFileSync(interFontPath);
-    const interBoldBytes = readFileSync(interBoldPath);
-    const interSemiBoldBytes = readFileSync(interSemiBoldPath);
+    const [interFontBytes, interBoldBytes, interSemiBoldBytes] = [
+      interFontPath,
+      interBoldPath,
+      interSemiBoldPath
+    ].map(fontPath => readFileSync(fontPath));
     
     const interFont = await pdfDoc.embedFont(interFontBytes);
     const interBold = await pdfDoc.embedFont(interBoldBytes);
     const interSemiBold = await pdfDoc.embedFont(interSemiBoldBytes);
 
-    // Create page with Figma dimensions
-    const page = pdfDoc.addPage([pxToPt(1700), pxToPt(1080)]);
+    // Define dimensions
+    const dimensions: PageDimensions = {
+      width: pxToPt(1700),
+      height: pxToPt(1080)
+    };
+
+    // Create first page
+    const page = pdfDoc.addPage([dimensions.width, dimensions.height]);
 
     // Define colors
-    const colors: Record<string, ColorWithOpacity> = {
+    const colors: Colors = {
       text: { color: rgbFromHex('#1f2128') },
       label: { color: rgbFromHex('#878a94') },
       border: { color: rgbFromHex('#D0D1D6'), opacity: 0.5 },
       white: { color: rgb(1, 1, 1) },
-      background: { color: rgb(1, 1, 1), opacity: 0.9 }
+      background: { color: rgb(1, 1, 1), opacity: 0.9 },
+      link: { color: rgbFromHex('#0066cc') }
     };
 
-    // Draw main container
+    // Layout constants
     const margin = pxToPt(68);
     const innerMargin = pxToPt(40);
     const contentX = margin + innerMargin;
-
-    // Draw header section - Aligned at the top
     const headerY = page.getHeight() - margin - pxToPt(69.5);
     
-    // Logo and title side by side
+    // Logo dimensions and positioning
     const logoWidth = pxToPt(220);
     const logoHeight = pxToPt(55);
     
@@ -78,7 +72,7 @@ export async function generateCertificate(data: CertificateData): Promise<string
       height: logoHeight,
     });
 
-    // Draw title aligned with logo
+    // Draw title
     page.drawText('Certificate of Carbon Contributions Retirements', {
       x: contentX + pxToPt(80),
       y: headerY - pxToPt(48),
@@ -87,21 +81,19 @@ export async function generateCertificate(data: CertificateData): Promise<string
       color: colors.text.color,
     });
 
-    // Draw delivery information section
+    // Information columns setup
     const deliveryY = headerY - pxToPt(200);
-    
-    // Column positions
     const leftColumnX = contentX + pxToPt(80);
     const rightColumnX = page.getWidth() - margin - innerMargin - pxToPt(400);
     
-    // Define both columns' content
-    const leftColumnDetails = [
+    // Define columns content
+    const leftColumnDetails: DetailColumn[] = [
       { label: 'Delivered to', value: data.deliveredTo || '0x..........' },
       { label: 'Verified Standard', value: data.certifier || 'ERS' },
       { label: 'By', value: data.developer || 'Corcovado Foundation' },
     ];
 
-    const rightColumnDetails = [
+    const rightColumnDetails: DetailColumn[] = [
       { label: 'Project', value: data.projectName || 'Banegas Farm' },
       { label: 'Based in', value: data.location || 'Costa Rica' },
       { label: 'Project Type', value: data.projectType || 'ARR' },
@@ -109,7 +101,7 @@ export async function generateCertificate(data: CertificateData): Promise<string
       { label: 'GPS Location', value: data.gpsLocation || '41.40338, 2.17403' },
     ];
 
-    // Draw left column
+    // Draw columns
     leftColumnDetails.forEach((detail, index) => {
       drawInfoSection(page, {
         x: leftColumnX,
@@ -122,7 +114,6 @@ export async function generateCertificate(data: CertificateData): Promise<string
       });
     });
 
-    // Draw right column
     rightColumnDetails.forEach((detail, index) => {
       drawInfoSection(page, {
         x: rightColumnX,
@@ -136,12 +127,12 @@ export async function generateCertificate(data: CertificateData): Promise<string
       });
     });
 
-    // Draw summary section - Full width
-    const summaryY = deliveryY - pxToPt(480); // Reduced margin before summary
-    const summaryWidth = page.getWidth() - (2 * (margin + innerMargin + pxToPt(80))); // Full width minus margins
+    // Summary section
+    const summaryY = deliveryY - pxToPt(480);
+    const summaryWidth = page.getWidth() - (2 * (margin + innerMargin + pxToPt(80)));
     const summaryHeight = pxToPt(214);
     
-    // Summary title
+    // Draw summary title
     page.drawText('Summary', {
       x: leftColumnX,
       y: summaryY + pxToPt(20),
@@ -150,7 +141,7 @@ export async function generateCertificate(data: CertificateData): Promise<string
       color: colors.text.color,
     });
 
-    // Summary box
+    // Draw summary box
     const summaryBoxColor = rgbFromHex('#d0d1d6');
     page.drawRectangle({
       x: leftColumnX,
@@ -164,9 +155,10 @@ export async function generateCertificate(data: CertificateData): Promise<string
       borderOpacity: 0.5,
     });
 
+    // Process and draw summary data
     const summaryData = processSummaryData(data.offsettorData, data.vintages, data.decimals);
 
-    const metrics = [
+    const metrics: SummaryMetric[] = [
       { 
         label: 'Cumulative Offsetting Amount',
         value: summaryData.offsettingAmount
@@ -200,7 +192,7 @@ export async function generateCertificate(data: CertificateData): Promise<string
       const valueWidth = interSemiBold.widthOfTextAtSize(valueText, pxToPt(24));
       
       page.drawText(valueText, {
-        x: leftColumnX + summaryWidth - valueWidth - pxToPt(40), // Add padding from right edge
+        x: leftColumnX + summaryWidth - valueWidth - pxToPt(40),
         y: metricY,
         size: pxToPt(24),
         font: interSemiBold,
@@ -208,74 +200,30 @@ export async function generateCertificate(data: CertificateData): Promise<string
       });
     });
 
-    // Generate PDF bytes
+    // Add table pages if there's offset data
+    if (data.offsettorData && data.offsettorData.length > 0) {
+      await addTablePages(pdfDoc, data.offsettorData, {
+        pageWidth: dimensions.width,
+        pageHeight: dimensions.height,
+        margin,
+        innerMargin,
+        colors,
+        interFont,
+        interBold,
+        interSemiBold,
+        logo,
+        chain,
+        vintages: data.vintages || [],
+        decimals: data.decimals || 1,
+      });
+    }
+
+    // Generate and return PDF
     const pdfBytes = await pdfDoc.save();
+    return Buffer.from(pdfBytes).toString('base64');
     
-    // Convert to base64 for transmission
-    const buffer = Buffer.from(pdfBytes);
-    return buffer.toString('base64');
   } catch (error) {
     console.error('PDF generation failed:', error);
     throw new Error('Failed to generate PDF');
-  }
-}
-
-// Helper function to draw info sections
-interface InfoSectionProps {
-  x: number;
-  y: number;
-  label: string;
-  value: string;
-  font: any;
-  boldFont: any;
-  colors: Record<string, ColorWithOpacity>;
-  alignment?: 'left' | 'right';
-  isUnderlined?: boolean;
-}
-
-function drawInfoSection(page: PDFPage, props: InfoSectionProps) {
-  const { x, y, label, value, font, boldFont, colors, alignment = 'left', isUnderlined = false } = props;
-  const fontSize = pxToPt(24);
-
-  // Calculate positions based on alignment
-  const labelWidth = font.widthOfTextAtSize(label, fontSize);
-  const valueWidth = boldFont.widthOfTextAtSize(value, fontSize);
-  
-  // Calculate x positions
-  const labelX = alignment === 'right' 
-    ? x + pxToPt(300) - labelWidth 
-    : x;
-  
-  const valueX = alignment === 'right'
-    ? x + pxToPt(300) - valueWidth
-    : x;
-
-  // Draw label
-  page.drawText(label, {
-    x: labelX,
-    y,
-    size: fontSize,
-    font,
-    color: colors.label.color,
-  });
-
-  // Draw value
-  const valueY = y - pxToPt(32);
-  page.drawText(value, {
-    x: valueX,
-    y: valueY,
-    size: fontSize,
-    font: boldFont,
-    color: colors.text.color,
-  });
-
-  // Draw underline if needed
-  if (isUnderlined) {
-    page.drawLine({
-      start: { x: valueX, y: valueY - 2 },
-      end: { x: valueX + valueWidth, y: valueY - 2 },
-      thickness: 1,
-      color: colors.text.color,
-    });
   }
 }
