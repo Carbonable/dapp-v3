@@ -24,6 +24,7 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
     address: project.project as `0x${string}`,
     functionName: "get_cc_vintages",
     args: [],
+    watch: true,
     enabled: !!project.abi ,
   });
 
@@ -37,6 +38,7 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
     address: project.offsettor as `0x${string}`,
     functionName: "get_requests",
     args: [address],
+    watch: true,
     enabled: !!project.offsettorAbi && !!address,
   });
 

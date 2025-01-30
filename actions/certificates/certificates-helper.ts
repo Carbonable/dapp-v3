@@ -39,52 +39,12 @@ export function getVintageYear(vintageIndex: bigint, vintages: Vintage[]): strin
 export function formatDecimalValue(value: bigint, decimals: number): string {
   if (decimals === 0) return value.toString();
 
+  const DISPLAY_DECIMALS = 6;
   const divisor = BigInt(10 ** decimals);
-  const integerPart = value / divisor;
-  const decimalPart = value % divisor;
+  const decimalNumber = Number(value) / Number(divisor);
   
-  if (decimalPart === 0n) {
-    return integerPart.toString();
-  }
-
-  // Convert to string and pad with zeros
-  const decimalStr = decimalPart.toString().padStart(decimals, '0');
-  
-  // Process each digit to handle rounding
-  let shouldRound = false;
-  const digits = decimalStr.split('');
-  
-  // Check if we need to round up (if any remaining digits are non-zero)
-  for (let i = digits.length - 1; i >= 0; i--) {
-    if (parseInt(digits[i]) > 0) {
-      shouldRound = true;
-      break;
-    }
-  }
-  
-  if (shouldRound) {
-    let carry = 1;
-    for (let i = digits.length - 1; i >= 0; i--) {
-      let digit = parseInt(digits[i]) + carry;
-      if (digit === 10) {
-        digit = 0;
-        carry = 1;
-      } else {
-        carry = 0;
-      }
-      digits[i] = digit.toString();
-    }
-    if (carry === 1) {
-      return (integerPart + 1n).toString();
-    }
-  }
-  
-  // Remove trailing zeros
-  const finalDecimal = digits.join('').replace(/0+$/, '');
-  
-  return finalDecimal 
-    ? `${integerPart}.${finalDecimal}`
-    : integerPart.toString();
+  // Round to 6 decimal places and remove trailing zeros
+  return decimalNumber.toFixed(DISPLAY_DECIMALS).replace(/\.?0+$/, '');
 }
 
 export function drawInfoSection(page: PDFPage, props: InfoSectionProps) {
