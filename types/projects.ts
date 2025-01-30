@@ -23,6 +23,7 @@ export interface OffsetData {
   project_address: bigint;
   vintage: bigint;
   tx_hash: bigint;
+  timestamp: bigint;
 }
 
 export type OffsetMetrics = {

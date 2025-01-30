@@ -45,7 +45,7 @@ export const projects_sepolia: Project[] = [
   {
     id: "banegas-farms",
     project: "0x00542b4a81cad076be3cf1d05bfdb02396773ec40b5e8d25d62ba38151ac2e85",
-    offsettor: "0x02ed214219cb46be974d2a1a3e135a051dbf9e5c2c31a2bdb64d2fe3673b9f3a",
+    offsettor: "0x004824be70b627fa327fbc5fd07618896ef1570d45bfeeea08a57f64285067b8",
     name: "Banegas Farms",
     country: "Costa Rica",
     developer: "Corcovado foundation",

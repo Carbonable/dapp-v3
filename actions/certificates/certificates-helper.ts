@@ -126,6 +126,19 @@ export function formatTransactionHash(txHash: string | bigint): string {
   return num.toHex(txHash);
 }
 
+export function formatTimestamp(timestamp: bigint): string {
+  const date = new Date(Number(timestamp) * 1000);
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 export async function addTablePages(
   pdfDoc: PDFDocument,
   offsettorData: OffsetData[],
@@ -158,12 +171,13 @@ export async function addTablePages(
   // Calculate number of pages needed
   const totalPages = Math.ceil(offsettorData.length / maxRowsPerPage);
 
-  // Column definitions with adjusted widths for full tx hash
+  // Column definitions with adjusted widths to include timestamp
   const columns = [
-    { header: 'Vintage', key: 'vintage', width: pxToPt(150) },
-    { header: 'Amount', key: 'amount', width: pxToPt(200) },
-    { header: 'Filled', key: 'filled', width: pxToPt(200) },
-    { header: 'Transaction Hash', key: 'tx_hash', width: pxToPt(550) },
+    { header: 'Date', key: 'timestamp', width: pxToPt(200) },
+    { header: 'Vintage', key: 'vintage', width: pxToPt(100) },
+    { header: 'Amount', key: 'amount', width: pxToPt(150) },
+    { header: 'Filled', key: 'filled', width: pxToPt(150) },
+    { header: 'Transaction Hash', key: 'tx_hash', width: pxToPt(500) },
   ];
 
   // Create pages and draw tables
@@ -173,11 +187,13 @@ export async function addTablePages(
     const endIndex = Math.min((pageNum + 1) * maxRowsPerPage, offsettorData.length);
 
     // Format the data for this page
-    const formattedData = formatTableData(
-      offsettorData.slice(startIndex, endIndex),
-      vintages,
-      decimals
-    );
+    const formattedData = offsettorData.slice(startIndex, endIndex).map(row => ({
+      timestamp: formatTimestamp(row.timestamp),
+      vintage: getVintageYear(row.vintage, vintages),
+      amount: formatDecimalValue(row.amount, decimals),
+      filled: formatDecimalValue(row.filled, decimals),
+      tx_hash: formatTransactionHash(row.tx_hash)
+    }));
 
     // Draw logo
     const logoWidth = pxToPt(220);
@@ -217,9 +233,7 @@ export async function addTablePages(
 
       // Draw cell values
       columns.forEach(column => {
-        const value = column.key === 'tx_hash' 
-          ? formatTransactionHash(row[column.key])
-          : row[column.key as keyof FormattedTableRow];
+        const value = row[column.key as keyof typeof row];
 
         page.drawText(value, {
           x: currentX,
