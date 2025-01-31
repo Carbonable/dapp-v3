@@ -52,7 +52,7 @@ export default function VintagesTable({
 
   // Calculate offsetting requests for each vintage
   const calculateOffsetMetrics = (offsettorData: OffsetData[], targetVintage: number): OffsetMetrics => {
-    if (!offsettorData) {
+    if (!offsettorData || offsettorData.length === 0) {
       return { requested: BigInt(0), fulfilled: BigInt(0) };
     }
   
@@ -71,7 +71,7 @@ export default function VintagesTable({
   };
   
   const getOffsetRequested = (offsettorData: OffsetData[], index: number, page: number): string => {
-    if (!offsettorData) return '0';
+    if (!offsettorData || offsettorData.length === 0) return '0';
     
     const targetVintage = index + 1 + ((page - 1) * rowsPerPage);
     const metrics = calculateOffsetMetrics(offsettorData, targetVintage);
@@ -80,7 +80,7 @@ export default function VintagesTable({
   };
   
   const getOffsetFulfilled = (offsettorData: OffsetData[], index: number, page: number): string => {
-    if (!offsettorData) return '0';
+    if (!offsettorData || offsettorData.length === 0) return '0';
     
     const targetVintage = index + 1 + ((page - 1) * rowsPerPage);
     const metrics = calculateOffsetMetrics(offsettorData, targetVintage);

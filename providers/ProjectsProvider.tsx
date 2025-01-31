@@ -134,11 +134,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
   const resetUserData = useCallback(() => {
     setProjects(projects => projects.map(project => ({
       ...project,
-      abi: undefined,
-      contract: undefined,
       userBalance: undefined,
-      offsettorContract: undefined,
-      offsettorAbi: undefined
     })));
   }, []);
 

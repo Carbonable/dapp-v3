@@ -3,6 +3,7 @@
 import { Project } from '@/config/projects';
 import { cn } from "@heroui/react";
 import { useRouter } from 'next/navigation';
+import ProjectStatus from './ProjectStatus';
 
 export interface ImageCardProps {
   project: Project | undefined;
@@ -39,6 +40,9 @@ export function ImageCard({ project, canNavigate = true }: ImageCardProps) {
           alt={project.name}
           className={cn("absolute inset-0 w-full h-full object-cover transition-transform duration-300", canNavigate && "group-hover:scale-110")}
         />
+        <div className='absolute top-4 right-4'>
+          <ProjectStatus status={project.status} />
+        </div>
         
         <div className={cn("absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent opacity-90 transition-opacity duration-300", canNavigate && "group-hover:opacity-100")}>
           <div className="absolute bottom-0 left-0 right-0 p-4 text-white">

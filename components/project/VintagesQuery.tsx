@@ -47,8 +47,11 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
     setFilteredOffsettorData((offsettorData as OffsetData[]).filter((data) => data.project_address === num.toBigInt(project.project)));
   }, [offsettorData]);
 
-  console.log('offsettorData', offsettorData);
-  console.log('filteredOffsettorData', filteredOffsettorData);
+  useEffect(() => {
+    if (!isConnected) {
+      setFilteredOffsettorData([]);
+    }
+  }, [isConnected]);
 
   if (project.abi === undefined) {
     return (

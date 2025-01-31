@@ -100,6 +100,16 @@ export default function OffsetRequestModal({ vintage, maxAmount, buttonDisabled,
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+
+    if (Number.isNaN(Number(value))) {
+      return;
+    }
+    
+    if (value === '') {
+      setAmount('');
+      setDisplayedAmount('');
+      return;
+    }
     setAmount((Number(value) * Math.pow(10, decimals)).toString());
     setDisplayedAmount(value);
   };
