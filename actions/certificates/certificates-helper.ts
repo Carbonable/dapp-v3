@@ -136,7 +136,7 @@ export function formatTimestamp(timestamp: bigint): string {
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
   
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds} UTC`;
 }
 
 export async function addTablePages(
@@ -173,10 +173,10 @@ export async function addTablePages(
 
   // Column definitions with adjusted widths to include timestamp
   const columns = [
-    { header: 'Date', key: 'timestamp', width: pxToPt(200) },
-    { header: 'Vintage', key: 'vintage', width: pxToPt(100) },
-    { header: 'Amount', key: 'amount', width: pxToPt(150) },
-    { header: 'Filled', key: 'filled', width: pxToPt(150) },
+    { header: 'Date', key: 'timestamp', width: pxToPt(220) },
+    { header: 'Vintage', key: 'vintage', width: pxToPt(120) },
+    { header: 'Amount locked', key: 'amount', width: pxToPt(200) },
+    { header: 'Amount retired', key: 'filled', width: pxToPt(200) },
     { header: 'Transaction Hash', key: 'tx_hash', width: pxToPt(500) },
   ];
 

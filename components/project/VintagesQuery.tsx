@@ -43,9 +43,13 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
   });
 
   useEffect(() => {
-    if (!offsettorData) return;
+    if (!offsettorData) {
+      setFilteredOffsettorData([]);
+      return;
+    }
+
     setFilteredOffsettorData((offsettorData as OffsetData[]).filter((data) => data.project_address === num.toBigInt(project.project)));
-  }, [offsettorData]);
+  }, [offsettorData, project]);
 
   useEffect(() => {
     if (!isConnected) {
@@ -109,7 +113,7 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
       <div className="mt-4">
         <VintagesTable
           vintages={vintagesData || []}
-          offsettorData={offsettorData || []}
+          offsettorData={filteredOffsettorData || []}
           project={project}
           isLoadingOffsettorData={isLoadingOffsettor}
           refetchOffsettor={refetchOffsettor}

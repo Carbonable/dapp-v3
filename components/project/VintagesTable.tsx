@@ -28,7 +28,7 @@ export default function VintagesTable({
   const columns = [
     "Year", 
     "My supply",
-    "Offsetting fullfiled",
+    "Offsetting fulfilled",
     "Offsetting requests",
     "Total supply",
     "Created",
