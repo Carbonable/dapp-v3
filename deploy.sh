@@ -47,7 +47,7 @@ source .env
 set +a
 
 # Check for required environment variables
-required_vars=("NEXT_PUBLIC_NETHERMINED_API_KEY" "NEXT_PUBLIC_DEFAULT_CHAIN")
+required_vars=("NEXT_PUBLIC_NETHERMIND_API_KEY" "NEXT_PUBLIC_DEFAULT_CHAIN")
 for var in "${required_vars[@]}"; do
     if [[ -z "${!var}" ]]; then
         echo "Error: Required environment variable $var is not set!"
