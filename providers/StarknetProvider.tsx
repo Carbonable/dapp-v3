@@ -1,14 +1,22 @@
 import { InjectedConnector } from "starknetkit/injected";
 import { ArgentMobileConnector, isInArgentMobileAppBrowser } from "starknetkit/argentMobile";
 import { WebWalletConnector } from "starknetkit/webwallet";
-import { mainnet, sepolia } from "@starknet-react/chains";
-import { StarknetConfig, nethermindProvider, publicProvider } from "@starknet-react/core";
+import { Chain, mainnet, sepolia } from "@starknet-react/chains";
+import { StarknetConfig, blastProvider, jsonRpcProvider } from "@starknet-react/core";
 import { ReactNode } from "react";
  
 export default function StarknetProvider({ children }: { children: ReactNode }) {
   const defaultChain = process.env.NEXT_PUBLIC_DEFAULT_CHAIN;
   const chains = defaultChain === sepolia.network ? [sepolia, mainnet] : [mainnet, sepolia];
-  const netherminApiKey = process.env.NEXT_PUBLIC_NETHERMIND_API_KEY;
+  const blastApiKey = process.env.NEXT_PUBLIC_BLAST_API_KEY;
+  function rpc(chain: Chain) {
+    console.info("Using RPC for chain:", chain.network);
+    return {
+      nodeUrl:`https://blastapi.io/public-api/starknet`
+    }
+  }
+ 
+const publicProvider = jsonRpcProvider({ rpc });
  
   const connectors = isInArgentMobileAppBrowser() ? [
     ArgentMobileConnector.init({
@@ -35,7 +43,7 @@ export default function StarknetProvider({ children }: { children: ReactNode }) 
   return(
     <StarknetConfig
       chains={chains}
-      provider={netherminApiKey ? nethermindProvider({ apiKey: netherminApiKey }) : publicProvider()}
+      provider={blastApiKey ? blastProvider({ apiKey: blastApiKey }) : publicProvider}
       connectors={connectors}
       autoConnect={true}
     >

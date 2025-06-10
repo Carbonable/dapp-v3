@@ -10,7 +10,7 @@ npm run dev
 ```
 
 ## Environment Variables
-NEXT_PUBLIC_NETHERMINED_API_KEY=my-key
+NEXT_PUBLIC_BLAST_API_KEY=my-key
 NEXT_PUBLIC_DEFAULT_CHAIN=mainnet|sepolia
 
 ## Configuration
