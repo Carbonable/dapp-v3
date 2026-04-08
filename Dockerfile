@@ -1,67 +1,41 @@
-# base node image
-FROM node:21 as base
-
-# Install openssl for Prisma
-RUN apt-get update && apt-get install -y openssl
-
-# Install all node_modules, including dev dependencies
-FROM base as deps
-
-RUN mkdir /app
+# --- Base ---
+FROM node:22-alpine AS base
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
 
-ADD package.json package-lock.json ./
-RUN npm install --production=false --force
+# --- Dependencies ---
+FROM base AS deps
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Setup production node_modules
-FROM base as production-deps
-
-RUN mkdir /app
-WORKDIR /app
-
-COPY --from=deps /app/node_modules /app/node_modules
-ADD package.json package-lock.json ./
-RUN npm prune --production --force
-
-# Build the app
-FROM base as build
-
-WORKDIR /app
-
-# Copy all files needed for build
-COPY --from=deps /app/node_modules /app/node_modules
+# --- Build ---
+FROM base AS build
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set build-time variables
 ARG NEXT_PUBLIC_BLAST_API_KEY
 ARG NEXT_PUBLIC_DEFAULT_CHAIN
-
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_ENV=production
-
-# Pass build arguments to environment for build time
 ENV NEXT_PUBLIC_BLAST_API_KEY=${NEXT_PUBLIC_BLAST_API_KEY}
 ENV NEXT_PUBLIC_DEFAULT_CHAIN=${NEXT_PUBLIC_DEFAULT_CHAIN}
+ENV NODE_ENV=production
 
 RUN npm run build
 
-# Production image
-FROM base
-
-WORKDIR /app
-
+# --- Production ---
+FROM base AS runner
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Runtime public variables
-ENV NEXT_PUBLIC_BLAST_API_KEY=${NEXT_PUBLIC_BLAST_API_KEY}
-ENV NEXT_PUBLIC_DEFAULT_CHAIN=${NEXT_PUBLIC_DEFAULT_CHAIN}
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-COPY --from=production-deps /app/node_modules /app/node_modules
-COPY --from=build /app/.next /app/.next
-COPY --from=build /app/public /app/public
-COPY --from=build /app/next.config.* ./
-COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/tsconfig.json ./tsconfig.json
+# Copy standalone output
+COPY --from=build /app/public ./public
+COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-CMD ["npm", "run", "start"]
+USER nextjs
+EXPOSE 3000
+
+CMD ["node", "server.js"]
