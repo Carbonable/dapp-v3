@@ -6,7 +6,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # --- Dependencies ---
 FROM base AS deps
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # --- Build ---
 FROM base AS build
