@@ -1,10 +1,12 @@
 'use client';
 import { ProjectWithAbi } from "@/config/projects";
 import Title from "../common/Title";
+import Button from "../common/Button";
 import { useAccount, useReadContract } from "@starknet-react/core";
 import VintagesTable from "./VintagesTable";
 import { CertificateDownloadButton } from "../certificate/CertificateDownloadButton";
 import { OffsetData, Vintage } from "@/types/projects";
+import { useProjects } from "@/providers/ProjectsProvider";
 import { useEffect, useState } from "react";
 import { num } from "starknet";
 
@@ -13,6 +15,7 @@ interface VintagesQueryProps {
 }
 export default function VintagesQuery({ project }: VintagesQueryProps) {
   const { address, isConnected } = useAccount();
+  const { isLoading: isLoadingProjects } = useProjects();
   const [filteredOffsettorData, setFilteredOffsettorData] = useState<OffsetData[]>([]);
   const { 
     data: vintagesData, 
@@ -58,10 +61,19 @@ export default function VintagesQuery({ project }: VintagesQueryProps) {
   }, [isConnected]);
 
   if (project.abi === undefined) {
+    // The provider only publishes the projects once their classes are fetched: a missing ABI
+    // after loading means the RPC request failed (for example rejected by the gateway).
     return (
       <>
         <Title title={"Carbon distribution"} />
-        <div>Loading ABI...</div>
+        {isLoadingProjects ? (
+          <div>Loading ABI...</div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-4">
+            <span>Error loading the project contract from the RPC node.</span>
+            <Button onClick={() => window.location.reload()}>Retry</Button>
+          </div>
+        )}
       </>
     );
   }

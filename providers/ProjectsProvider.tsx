@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useMemo } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback, useMemo } from 'react';
 import { ProjectView } from '@/types/projects';
 import { projects_mainnet, projects_sepolia, ProjectWithAbi } from '@/config/projects';
 import { sepolia } from '@starknet-react/chains';
@@ -36,6 +36,10 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingUserData, setIsLoadingUserData] = useState(false);
   const [previousChainId, setPreviousChainId] = useState<bigint | null>(null);
+  // Chain whose projects are being fetched right now. starknet-react swaps the provider object right
+  // after mount and again when a wallet connects, which re-runs initializeProjects while the first
+  // fetch is still pending: without this guard every class is fetched two or three times.
+  const inFlightChainId = useRef<bigint | null>(null);
 
   // Derive myProjects and projectsWithBalance from projects
   const { myProjects, projectsWithBalance } = useMemo(() => {
@@ -49,44 +53,46 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
   }, [projects]);
 
   const initializeProjects = useCallback(async () => {
-    // Skip if we're already initialized with the same chain
+    // Skip if we're already initialized with the same chain, or already fetching it
     if (initialized && previousChainId === chain.id) return;
-    
+    if (inFlightChainId.current === chain.id) return;
+    inFlightChainId.current = chain.id;
+
     setIsLoading(true);
     const baseProjects = chain.id === sepolia.id ? projects_sepolia : projects_mainnet;
 
     try {
-      const projectsWithAbis = await Promise.all(
-        baseProjects.map(async (project): Promise<ProjectWithAbi> => {
-          try {
-            // Fetch Project ABI
-            const projectAbi = await fetchAbi(provider, project.project);
-            const offsettorAbi = await fetchAbi(provider, project.offsettor);
-
-            if (!projectAbi) {
-              console.error(`No ABI found for project ${project.project}`);
-              return { ...project };
-            }
-
-            // Initialize both contracts
-            const contract = new Contract(projectAbi, project.project, provider);
-            const offsettorContract = offsettorAbi 
-              ? new Contract(offsettorAbi, project.offsettor, provider)
-              : undefined;
-
-            return { 
-              ...project, 
-              abi: projectAbi, 
-              contract,
-              offsettorAbi,
-              offsettorContract
-            };
-          } catch (error) {
-            console.error(`Failed to fetch ABIs for project ${project.project}:`, error);
-            return { ...project };
-          }
-        })
+      // Fetch each class once: the projects of a network share the same offsettor
+      const addresses = [...new Set(baseProjects.flatMap((project) => [project.project, project.offsettor]))];
+      const abis = new Map(
+        await Promise.all(
+          addresses.map(async (address) => {
+            const abi = await fetchAbi(provider, address).catch((error) => {
+              console.error(`Failed to fetch ABI of ${address}:`, error);
+              return undefined;
+            });
+            return [address, abi] as const;
+          })
+        )
       );
+
+      const projectsWithAbis = baseProjects.map((project): ProjectWithAbi => {
+        const projectAbi = abis.get(project.project);
+        const offsettorAbi = abis.get(project.offsettor);
+
+        if (!projectAbi) {
+          console.error(`No ABI found for project ${project.project}`);
+          return { ...project };
+        }
+
+        return {
+          ...project,
+          abi: projectAbi,
+          contract: new Contract(projectAbi, project.project, provider),
+          offsettorAbi,
+          offsettorContract: offsettorAbi ? new Contract(offsettorAbi, project.offsettor, provider) : undefined,
+        };
+      });
 
       setProjects(projectsWithAbis);
       setPreviousChainId(chain.id);
@@ -96,6 +102,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
       setProjects(baseProjects);
       setInitialized(true);
     } finally {
+      inFlightChainId.current = null;
       setIsLoading(false);
     }
   }, [chain.id, provider, previousChainId, initialized]);

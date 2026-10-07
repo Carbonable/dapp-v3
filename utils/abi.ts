@@ -1,4 +1,4 @@
-import { Contract, num, ProviderInterface } from "starknet";
+import { Contract, num, ProviderInterface, RpcError } from "starknet";
 
 export async function fetchAbi(provider: ProviderInterface, address: string) {
   let result;
@@ -6,9 +6,15 @@ export async function fetchAbi(provider: ProviderInterface, address: string) {
     result = await provider.getClassAt(address);
   } catch (e) {
     console.error(e);
-    
+
+    // The address may be a class hash only when the node knows no contract at it: on any
+    // other failure (network, rate limit) a second request would fail the same way.
+    if (!(e instanceof RpcError && e.isType("CONTRACT_NOT_FOUND"))) {
+      return undefined;
+    }
+
     try {
-        result = await provider.getClassByHash(address);
+      result = await provider.getClassByHash(address);
     } catch (e) {
       console.error(e);
       return undefined;

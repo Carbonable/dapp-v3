@@ -2,18 +2,44 @@ import { InjectedConnector } from "starknetkit/injected";
 import { ArgentMobileConnector, isInArgentMobileAppBrowser } from "starknetkit/argentMobile";
 import { WebWalletConnector } from "starknetkit/webwallet";
 import { Chain, mainnet, sepolia } from "@starknet-react/chains";
-import { StarknetConfig, blastProvider, jsonRpcProvider } from "@starknet-react/core";
+import { StarknetConfig, jsonRpcProvider } from "@starknet-react/core";
+import { BlockTag } from "starknet";
 import { ReactNode } from "react";
  
+// Next.js inlines only literal process.env.NEXT_PUBLIC_* reads, hence one read per variable.
+// A missing or malformed value throws while the module loads, which fails `next build` during
+// prerendering: without it starknet.js would silently fall back to its own default public node
+// (a NetworkName such as "SN_MAIN" in place of the URL triggers that fallback too).
+// The messages never include the value: the mainnet URL carries the gateway key.
+const MAINNET_RPC_URL = requireRpcUrl("NEXT_PUBLIC_MAINNET_RPC_URL", process.env.NEXT_PUBLIC_MAINNET_RPC_URL);
+const SEPOLIA_RPC_URL = requireRpcUrl("NEXT_PUBLIC_SEPOLIA_RPC_URL", process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
+const DEFAULT_CHAIN = requireDefaultChain(process.env.NEXT_PUBLIC_DEFAULT_CHAIN);
+
+function requireRpcUrl(name: string, value: string | undefined): string {
+  if (value && isHttpUrl(value)) return value;
+  throw new Error(`${name} must hold the http(s) URL of the Starknet JSON-RPC node of that network at build time`);
+}
+
+function isHttpUrl(value: string): boolean {
+  try {
+    return ["https:", "http:"].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
+
+function requireDefaultChain(value: string | undefined): Chain {
+  if (value === mainnet.network) return mainnet;
+  if (value === sepolia.network) return sepolia;
+  throw new Error(`NEXT_PUBLIC_DEFAULT_CHAIN must be "${mainnet.network}" or "${sepolia.network}" at build time`);
+}
+
 export default function StarknetProvider({ children }: { children: ReactNode }) {
-  const defaultChain = process.env.NEXT_PUBLIC_DEFAULT_CHAIN;
-  const chains = defaultChain === sepolia.network ? [sepolia, mainnet] : [mainnet, sepolia];
-  const blastApiKey = process.env.NEXT_PUBLIC_BLAST_API_KEY;
+  const chains = DEFAULT_CHAIN === sepolia ? [sepolia, mainnet] : [mainnet, sepolia];
   function rpc(chain: Chain) {
-    console.info("Using RPC for chain:", chain.network);
-    return {
-      nodeUrl:`https://blastapi.io/public-api/starknet`
-    }
+    if (chain.id === mainnet.id) return { nodeUrl: MAINNET_RPC_URL, blockIdentifier: BlockTag.LATEST };
+    if (chain.id === sepolia.id) return { nodeUrl: SEPOLIA_RPC_URL, blockIdentifier: BlockTag.LATEST };
+    return null;
   }
  
 const publicProvider = jsonRpcProvider({ rpc });
@@ -43,7 +69,7 @@ const publicProvider = jsonRpcProvider({ rpc });
   return(
     <StarknetConfig
       chains={chains}
-      provider={blastApiKey ? blastProvider({ apiKey: blastApiKey }) : publicProvider}
+      provider={publicProvider}
       connectors={connectors}
       autoConnect={true}
     >
