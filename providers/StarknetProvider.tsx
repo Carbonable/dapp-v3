@@ -34,11 +34,26 @@ function requireDefaultChain(value: string | undefined): Chain {
   throw new Error(`NEXT_PUBLIC_DEFAULT_CHAIN must be "${mainnet.network}" or "${sepolia.network}" at build time`);
 }
 
+// The RPC gateway answers 429 when a limit is reached, for example when two visitors load a page in the
+// same second: wait (with jitter, so the visitors do not retry together) and send the request again.
+// starknet.js cannot see the status (it only fails to parse the text/plain body), hence this wrapper.
+// Only reads go through this provider (the wallet sends the transactions), so a retry duplicates nothing.
+const RETRY_DELAYS_MS = [250, 500, 1000];
+
+async function fetchRetryingOn429(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  for (const delay of RETRY_DELAYS_MS) {
+    const response = await fetch(input, init);
+    if (response.status !== 429) return response;
+    await new Promise((resolve) => setTimeout(resolve, delay + Math.random() * delay));
+  }
+  return fetch(input, init);
+}
+
 export default function StarknetProvider({ children }: { children: ReactNode }) {
   const chains = DEFAULT_CHAIN === sepolia ? [sepolia, mainnet] : [mainnet, sepolia];
   function rpc(chain: Chain) {
-    if (chain.id === mainnet.id) return { nodeUrl: MAINNET_RPC_URL, blockIdentifier: BlockTag.LATEST };
-    if (chain.id === sepolia.id) return { nodeUrl: SEPOLIA_RPC_URL, blockIdentifier: BlockTag.LATEST };
+    if (chain.id === mainnet.id) return { nodeUrl: MAINNET_RPC_URL, blockIdentifier: BlockTag.LATEST, baseFetch: fetchRetryingOn429 };
+    if (chain.id === sepolia.id) return { nodeUrl: SEPOLIA_RPC_URL, blockIdentifier: BlockTag.LATEST, baseFetch: fetchRetryingOn429 };
     return null;
   }
  
